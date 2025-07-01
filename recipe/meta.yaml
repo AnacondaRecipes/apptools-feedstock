@@ -1,4 +1,4 @@
-{% set version = "5.1.0" %}
+{% set version = "5.3.1" %}
 
 package:
   name: apptools
@@ -7,40 +7,50 @@ package:
 source:
   fn: apptools-{{ version }}.tar.gz
   url: https://pypi.python.org/packages/source/a/apptools/apptools-{{ version }}.tar.gz
-  sha256: d093de314f04485a4c108ba3806c514ae3ba39a3210277fef297521634a3a58b
+  sha256: 7dd8f3a95ca02fc1c03f82cebbe6bed0f74e74fb93e4f66987fa4d8e606ff167
 
 build:
-  noarch: python
   number: 0
-  script: python -m pip install --no-deps --ignore-installed .
+  script: python -m pip install --no-deps --ignore-installed --no-build-isolation .
 
 requirements:
   host:
     - pip
     - python
     - setuptools
-    - traits
-    - pyface
-    - traitsui
-    - configobj
   run:
     - python
-    - traits
-    - pyface
-    - traitsui
-    - configobj
+    - traits >=6.2.0
+  run_constrained:
+    - numpy <2.0  # [py<310]
 
 test:
+  requires:
+    - pip
+  commands:
+    - pip check
   imports:
     - apptools
     - apptools.logger.api
 
 about:
-  home: http://docs.enthought.com/apptools/
-  license: BSD 3-clause
-  summary: application tools
+  home: https://github.com/enthought/apptools
+  doc_url: https://docs.enthought.com/apptools/
+  dev_url: https://github.com/enthought/apptools
+  license: BSD-3-Clause
+  license_family: BSD
+  summary: Application building blocks and GUI utilities from the Enthought Tool Suite
+  description: |
+    Apptools provides a collection of packages that Enthought has found useful in creating
+    a number of applications. They implement functionality that is commonly needed by many
+    applications including file system abstraction, logging utilities, naming contexts,
+    object persistence, application preferences, selection management, scripting framework,
+    and undo/redo capabilities. These tools are designed to work with the Envisage plug-in
+    system and other components of the Enthought Tool Suite.
   license_file: LICENSE.txt
 
 extra:
   recipe-maintainers:
     - grlee77
+  skip-lints:
+    - missing_wheel
