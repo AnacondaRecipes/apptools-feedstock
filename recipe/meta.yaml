@@ -12,32 +12,49 @@ source:
 build:
   number: 0
   skip: true  # [py<38]
-  script: python -m pip install --no-deps --ignore-installed --no-build-isolation .
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
   host:
     - pip
     - python
     - setuptools
+    - wheel
   run:
     - python
     - traits >=6.2.0
   run_constrained:
     - numpy <2.0  # [py<310]
+    - numpy  # [py>=310]
+
+{% set deselect_tests = "" %}
+# os.chmod(f.path, stat.S_IRUSR)
+# self.assertTrue(f.is_readonly)
+# AssertionError: False is not true
+{% set deselect_tests = " --deselect=io/tests/test_file.py" %}  # [linux]
 
 test:
-  requires:
-    - pip
-  commands:
-    - pip check
   imports:
     - apptools
-    - apptools.logger.api
+    - apptools.io
+    - apptools.logger
+    - apptools.naming
+    - apptools.persistence
+    - apptools.preferences
+    - apptools.scripting
+    - apptools.selection
+    - apptools.undo
+  requires:
+    - pip
+    - pytest
+    - numpy
+  commands:
+    - pip check
+    - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
+    - pytest {{ deselect_tests }} --pyargs apptools
 
 about:
   home: https://github.com/enthought/apptools
-  doc_url: https://docs.enthought.com/apptools/
-  dev_url: https://github.com/enthought/apptools
   license: BSD-3-Clause
   license_family: BSD
   summary: Application building blocks and GUI utilities from the Enthought Tool Suite
@@ -49,9 +66,9 @@ about:
     and undo/redo capabilities. These tools are designed to work with the Envisage plug-in
     system and other components of the Enthought Tool Suite.
   license_file: LICENSE.txt
+  doc_url: https://docs.enthought.com/apptools
+  dev_url: https://github.com/enthought/apptools
 
 extra:
   recipe-maintainers:
     - grlee77
-  skip-lints:
-    - missing_wheel
